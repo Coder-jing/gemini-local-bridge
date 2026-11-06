@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/gemini-settings.json",
+  "mcpServers": {
+    "gemini-local-bridge": {
+      "command": "python",
+      "args": ["run_server.py", "--transport", "stdio"],
+      "cwd": "C:\\Users\\jingy\\Desktop\\gemini_MCP",
+      "description": "Bridge to local files, shell, and system info."
+    }
+  }
+}

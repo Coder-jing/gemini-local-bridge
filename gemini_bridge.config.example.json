@@ -1,0 +1,45 @@
+{
+  "server_name": "gemini-local-bridge",
+  "transport": "stdio",
+  "host": "127.0.0.1",
+  "port": 8765,
+  "allowed_roots": [
+    "C:\\Users\\jingy\\Desktop\\gemini_MCP"
+  ],
+  "audit_log_path": "gemini_bridge_audit.jsonl",
+  "max_read_bytes": 2000000,
+  "max_write_bytes": 5000000,
+  "max_entries": 2000,
+  "enable_filesystem": true,
+  "enable_shell": true,
+  "enable_system": true,
+  "enable_git": true,
+  "enable_web": true,
+  "enable_content": true,
+  "auth_enabled": true,
+  "auth_token": "",
+  "allowed_hosts": [],
+  "allowed_origins": [],
+  "command_policy": {
+    "mode": "denylist",
+    "allow": [],
+    "deny": [
+      "rm", "rmdir", "del", "erase", "rd", "format", "mkfs", "diskpart",
+      "shutdown", "reboot", "halt", "poweroff", "taskkill", "kill", "killall",
+      "reg", "regedit", "bcdedit", "vssadmin", "cipher", "takeown", "icacls",
+      "attrib", "net", "netsh", "sc", "schtasks", "wmic", "dd", "chmod", "chown", "mv"
+    ],
+    "block_patterns": [
+      "rm\\s+-[a-z]*r[a-z]*f",
+      "\\bdel\\s+/[sf]",
+      "\\brd\\s+/s",
+      ">\\s*/dev/sd[a-z]",
+      "\\bmkfs\\b",
+      "\\b(shutdown|reboot|halt|poweroff)\\b",
+      "(?i)\\bformat\\s+[a-z]:",
+      "\\breg\\s+(add|delete|import)\\b"
+    ],
+    "timeout_seconds": 60,
+    "max_output_bytes": 200000
+  }
+}

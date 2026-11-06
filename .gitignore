@@ -1,0 +1,55 @@
+# --- Secrets / local config (NEVER commit) ---
+gemini_bridge.config.json
+gemini_cli.settings.json
+gemini_bridge_audit.jsonl
+gemini_bridge_requests.log
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Build / packaging output ---
+build/
+dist/
+*.spec.bak
+*.manifest
+
+# --- Node / web (settings-app scaffold) ---
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- Cloudflared / tunnel local state ---
+*.cloudflared/
+cloudflared.yml
+gembridge.yml
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# --- Temporary / preview artifacts ---
+ui_preview.png
+icon_check.png
+ui_check.png
+*_preview.png
+
+# --- Logs ---
+*.log
+*.log.*
