@@ -42,33 +42,69 @@ class ServerController:
         self._server = None  # uvicorn.Server instance
         self._thread: threading.Thread | None = None
         self._lock = threading.Lock()
-
+        self.last_error: str | None = None
+     
     @property
     def running(self) -> bool:
-        return self._server is not None and not self._server.should_exit
+        return (
+             self._server is not None
+             and not self._server.should_exit
+             and self._thread is not None
+            and self._thread.is_alive()
+        )         
 
     def start(self, cfg: Config) -> None:
         with self._lock:
             if self.running:
                 return
+            import sys
             import uvicorn
-
+            from starlette.responses import JSONResponse
             from gemini_local_bridge.server import create_server
-
-            app = create_server(cfg).streamable_http_app()
             from gemini_local_bridge.auth import TokenAuthMiddleware, load_token
+
+            if sys.stdout is None:
+                sys.stdout = open(os.devnull, "w", encoding="utf-8")
+            if sys.stderr is None:
+                sys.stderr = open(os.devnull, "w", encoding="utf-8")
+
+            server = create_server(cfg)
+
+            @server.custom_route("/healthz", methods=["GET"])
+            def _healthz(_request):
+                return JSONResponse({"status": "ok", "server": cfg.server_name})
+
+            app = server.streamable_http_app()
 
             token = load_token(cfg.auth_token)
             if token and cfg.auth_enabled:
                 app.add_middleware(TokenAuthMiddleware, token=token, enabled=True)
 
+            try:
+                from gemini_local_bridge.diagnostics import RequestDiagnosticMiddleware
+                app.add_middleware(RequestDiagnosticMiddleware)
+            except Exception:
+                pass
+
             config = uvicorn.Config(
-                app, host=cfg.host, port=cfg.port, log_level="warning"
+                app,
+                host=cfg.host,
+                port=cfg.port,
+                log_level="warning",
+                log_config=None,
             )
             self._server = uvicorn.Server(config)
-            self._thread = threading.Thread(
-                target=self._server.run, daemon=True
-            )
+            self.last_error = None
+
+            def _target() -> None:
+                try:
+                    self._server.run()
+                except Exception as exc:
+                    self.last_error = str(exc)
+                    if self._server is not None:
+                        self._server.should_exit = True
+
+            self._thread = threading.Thread(target=_target, daemon=True)
             self._thread.start()
 
     def stop(self) -> None:
